@@ -11,7 +11,7 @@ contract ERC20 {
     uint256 public totalSupply;
     mapping(address => uint256) public balanceOf;
     // approver => spender => amount
-    mapping(address => mapping(address => uint256)) public approvals;
+    mapping(address => mapping(address => uint256)) public allowance;
 
     constructor(string memory _name, string memory _symbol) {
         name = _name;
@@ -20,7 +20,10 @@ contract ERC20 {
 
     event Transfer();
 
-    function transfer(address _to, uint256 _value) public  returns (bool success) {
+    function transfer(address _to, uint256 _value)
+        public
+        returns (bool success)
+    {
         if (balanceOf[msg.sender] < _value) {
             revert InsufficientBalance();
         }
@@ -31,17 +34,21 @@ contract ERC20 {
         emit Transfer();
     }
 
-    function transferFrom(address _from, address _to, uint256 _value) public returns (bool success) {
-        if (approvals[_from][msg.sender] < _value) {
+    function transferFrom(
+        address _from,
+        address _to,
+        uint256 _value
+    ) public returns (bool success) {
+        if (allowance[_from][msg.sender] < _value) {
             revert InsufficientApproval();
         }
 
-        approvals[_from][msg.sender] -= _value;
+        allowance[_from][msg.sender] -= _value;
 
         if (balanceOf[_from] < _value) {
             revert InsufficientBalance();
         }
- 
+
         balanceOf[_from] -= _value;
         balanceOf[_to] += _value;
 
@@ -50,11 +57,12 @@ contract ERC20 {
         return true;
     }
 
-    function approve(address _spender, uint256 _value) public returns (bool success) {
-        approvals[msg.sender][_spender] = _value;
+    function approve(address _spender, uint256 _value)
+        public
+        returns (bool success)
+    {
+        allowance[msg.sender][_spender] = _value;
 
         return true;
     }
-
-
 }
