@@ -29,6 +29,8 @@ contract Marketplace {
     mapping(address => EventData) public events;
     mapping(address => uint256) public profits;
 
+    event NewEvent(address indexed newEvent); // this is solidity event 
+
     constructor(address feeCollector_) {
         feeCollector = feeCollector_;
     }
@@ -44,6 +46,8 @@ contract Marketplace {
         address newEvent = address(
             new Event(address(this), eventName, date, location, msg.sender)
         );
+
+        emit NewEvent(newEvent);
 
         _listEvent(newEvent, ticketPrice, saleType, saleEnds);
     }
@@ -68,7 +72,7 @@ contract Marketplace {
         uint256 saleEnds
     ) internal {
         // TODO: Ensure External Event contract is compatible with IEvent
-        if (saleEnds > (block.timestamp + MIN_SALE_PERIOD)) {
+        if (saleEnds < (block.timestamp + MIN_SALE_PERIOD)) {
             revert InvalidInput("salesEnds == 0");
         }
 
